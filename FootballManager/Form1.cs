@@ -131,6 +131,7 @@ namespace FootballManager
 
         private void editToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (lvTeams.SelectedItems.Count < 1) return;
             string teamName = TextInputPrompt.ShowDialog(this, "Teamname", "Input a name for the team", lvTeams.SelectedItems[0].Text);
             if (teamName != "-1")
             {
@@ -140,6 +141,7 @@ namespace FootballManager
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (lvTeams.SelectedItems.Count < 1) return;
             lvTeams.Items.RemoveAt(lvTeams.SelectedIndices[0]);
         }
 
@@ -400,6 +402,18 @@ namespace FootballManager
                 }
                 cbFilter.Items.Add("No filter");
                 cbFilter.SelectedIndex = cbFilter.Items.Count - 1;
+
+                mtbStartTime.Text = Manager.GetStartTime();
+                mtbGameLength.Text = Manager.GetGameLength().ToString().PadLeft(2, '0');
+                mtbPauseLength.Text = Manager.GetGamePause().ToString().PadLeft(2, '0');
+
+                lvPauses.Items.Clear();
+                foreach (var p in Manager.GetPauses())
+                {
+                    ListViewItem lvi = new ListViewItem(p.Item1);
+                    lvi.SubItems.Add(p.Item2.ToString());
+                    lvPauses.Items.Add(lvi);
+                }
             }
             else
             {

@@ -157,15 +157,39 @@ namespace FootballManager
             ws.Cells[1, 3] = "Heim";
             ws.Cells[1, 4] = "Stand";
             ws.Cells[1, 5] = "Gast";
+
+            ws.Cells[1, 7] = "Mannschaften";
+            int c = 0;
+            List<KeyValuePair<string, string>> teams = new List<KeyValuePair<string, string>>();
+            foreach (var t in lTeams)
+            {
+                teams.Add(new KeyValuePair<string, string>(t.Key, "=G" + (c + 2).ToString()));
+                ws.Cells[c + 2, 7] = t.Key;
+                c++;
+            }
+
+            ws.Cells[1, 9] = "Einstellungen";
+            ws.Cells[2, 9] = "Startzeit:";
+            ws.Cells[2, 10] = this.StartTime;
+            ws.Cells[3, 9] = "Spielzeit:";
+            ws.Cells[3, 10] = this.GameLength;
+            ws.Cells[4, 9] = "Wechselzeit:";
+            ws.Cells[4, 10] = this.GamePause;
             
             int i = 0;
             foreach (var s in lGames)
             {
-                ws.Cells[i + 2, 1] = s.Id;
-                ws.Cells[i + 2, 2] = s.Time;
-                ws.Cells[i + 2, 3] = s.Home;
-                ws.Cells[i + 2, 4] = (s.HomeGoals == -1 ? "__" : s.HomeGoals.ToString()) + ":" + (s.GuestGoals == -1 ? "__" : s.GuestGoals.ToString());
-                ws.Cells[i + 2, 5] = s.Guest;
+                int row = i + 2;
+                //ws.Cells[i + 2, 1] = s.Id;
+                //ws.Cells[i + 2, 2] = s.Time;
+                //ws.Cells[i + 2, 3] = s.Home;
+                //ws.Cells[i + 2, 4] = (s.HomeGoals == -1 ? "__" : s.HomeGoals.ToString()) + ":" + (s.GuestGoals == -1 ? "__" : s.GuestGoals.ToString());
+                //ws.Cells[i + 2, 5] = s.Guest;
+                ws.Cells[row, 1] = s.Id;
+                ws.Cells[row, 2].Formula = i == 0 ? "=J2" : "=TEXT(B" + (row - 1) + "+(J3/1440)+(J4/1440),\"hh: mm\")";
+                ws.Cells[row, 3] = teams.Where(a => a.Key == s.Home).FirstOrDefault().Value;
+                ws.Cells[row, 4] = (s.HomeGoals == -1 ? "__" : s.HomeGoals.ToString()) + ":" + (s.GuestGoals == -1 ? "__" : s.GuestGoals.ToString());
+                ws.Cells[row, 5] = teams.Where(a => a.Key == s.Guest).FirstOrDefault().Value;
                 i++;
             }
 
@@ -202,6 +226,14 @@ namespace FootballManager
             {
                 text += s.Key + ";" + s.Value + "\n";
             }
+            text += "{Settings}\n";
+            text += StartTime + "\n";
+            text += GameLength + "\n";
+            text += GamePause + "\n";
+            foreach (var p in lPauses)
+            {
+                text += p.Item1 + ";" + p.Item2 + "\n";
+            }
             File.WriteAllText(Path, text);
             return true;
         }
@@ -217,19 +249,23 @@ namespace FootballManager
             {
                 lGames = new List<Spiele>();
                 lTeams = new List<KeyValuePair<string, bool>>();
+                lPauses = new List<Tuple<string, int>>();
                 string[] lines = File.ReadAllLines(Path);
                 List<string> games = new List<string>();
                 List<string> teams = new List<string>();
+                List<string> settings = new List<string>();
 
-                for (int i = 0; i < lines.Length; i++)
-                {
-                    if(lines[i] == "{Teams}")
-                    {
-                        games = lines.Take(i).ToList();
-                        teams = lines.Skip(i + 1).ToList();
-                        break;
-                    }
-                }
+                //int teamLine = 0, settingsLine = 0;
+                //for (int i = 0; i < lines.Length; i++)
+                //{
+                //    if (lines[i] == "{Teams}")
+                //        teamLine = i;
+                //    if (lines[i] == "{Settings}")
+                //        settingsLine = i;
+                //}
+                games = lines.TakeWhile(a => a != "{Teams}").ToList();
+                teams = lines.Skip(games.Count + 1).TakeWhile(a => a != "{Settings}").ToList();
+                settings = lines.Skip(games.Count + teams.Count + 2).TakeWhile(a => a != "").ToList();
 
                 if (games.Count() == 0 || teams.Count() == 0) throw new Exception();
                 
@@ -254,14 +290,25 @@ namespace FootballManager
                     lTeams.Add(new KeyValuePair<string, bool>(teamName, rating));
                 }
 
+                this.StartTime = settings[0];
+                this.GameLength = int.Parse(settings[1]);
+                this.GamePause = int.Parse(settings[2]);
+
+                for (int i = 3; i < settings.Count; i++)
+                {
+                    string[] p = settings[i].Split(';');
+                    int temp = int.Parse(p[1]);
+                    this.lPauses.Add(new Tuple<string, int>(p[0], temp));
+                }
+
                 this.createTable();
 
                 bPlanHasChanged = true;
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                
             }
             return false;
         }
@@ -333,6 +380,42 @@ namespace FootballManager
         {
             if (lTeams == null) return new List<KeyValuePair<string, bool>>();
             return lTeams;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public string GetStartTime()
+        {
+            return this.StartTime;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public int GetGameLength()
+        {
+            return this.GameLength;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public int GetGamePause()
+        {
+            return this.GamePause;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public List<Tuple<string, int>> GetPauses()
+        {
+            return this.lPauses;
         }
 
         /// <summary>
@@ -445,6 +528,8 @@ namespace FootballManager
             //Formate testen
             if (!Regex.IsMatch(StartTime, @"^\d{2}:\d{2}$")) return new List<Spiele>();
 
+            bool isOdd = mod(lTeams.Count, 2) == 0 ? false : true;
+
             TimeSpan startTime = TimeSpan.Parse(StartTime);
             
             List<string> Teams = new List<string>();
@@ -452,7 +537,9 @@ namespace FootballManager
             {
                 Teams.Add(s.Key);
             }
-            
+
+            if (isOdd)
+                Teams.Add("TEMP");
 
             List<Game> GamePlan = new List<Game>();
             int c = Teams.Count;
@@ -464,8 +551,17 @@ namespace FootballManager
 
                 for (int k = 1; k < (Teams.Count / 2); k++)
                 {
-                    GamePlan.Add(new Game { Guest = Teams[mod((i + k), (c - 1)) != 0 ? mod((i + k), (c - 1)) - 1 : c - 2], Home = Teams[mod((i - k), (c - 1)) != 0 ? mod((i - k), (c - 1)) - 1 : c - 2] });
+                    GamePlan.Add(new Game
+                    {
+                        Guest = Teams[mod((i + k), (c - 1)) != 0 ? mod((i + k), (c - 1)) - 1 : c - 2],
+                        Home = Teams[mod((i - k), (c - 1)) != 0 ? mod((i - k), (c - 1)) - 1 : c - 2]
+                    });
                 }
+            }
+
+            if (isOdd)
+            {
+                GamePlan.RemoveAll(a => a.Home == "TEMP" || a.Guest == "TEMP");
             }
             
             List<Spiele> sp = new List<Spiele>();
@@ -476,7 +572,17 @@ namespace FootballManager
 
             foreach (var s in GamePlan)
             {
-                sp.Add(new Spiele { Id = count, Time = string.Format(startTime.ToString(@"hh\:mm") + " - " + startTime.Add(TimeSpan.FromMinutes(dauer)).ToString(@"hh\:mm")), Home = s.Home, Guest = s.Guest, GuestGoals = -1, HomeGoals = -1, Played = false, Rating = lTeams.Where(a => a.Key == s.Home).FirstOrDefault().Value == true && lTeams.Where(a => a.Key == s.Guest).FirstOrDefault().Value == true ? true : false });
+                sp.Add(new Spiele
+                {
+                    Id = count,
+                    Time = string.Format(startTime.ToString(@"hh\:mm") + " - " + startTime.Add(TimeSpan.FromMinutes(dauer)).ToString(@"hh\:mm")),
+                    Home = s.Home,
+                    Guest = s.Guest,
+                    GuestGoals = -1,
+                    HomeGoals = -1,
+                    Played = false,
+                    Rating = lTeams.Where(a => a.Key == s.Home).FirstOrDefault().Value == true && lTeams.Where(a => a.Key == s.Guest).FirstOrDefault().Value == true ? true : false
+                });
                 
                 startTime = startTime.Add(TimeSpan.FromMinutes(dauer + pause));
 
