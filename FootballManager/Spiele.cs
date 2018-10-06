@@ -9,7 +9,8 @@ namespace FootballManager
     enum SaveFormat
     {
         File,
-        Excel
+        Excel,
+        ExcelTemplate
     }
 
     class Spiele

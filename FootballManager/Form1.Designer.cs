@@ -277,11 +277,12 @@
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 494);
+            this.label1.Location = new System.Drawing.Point(6, 481);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(364, 13);
+            this.label1.Size = new System.Drawing.Size(367, 26);
             this.label1.TabIndex = 5;
-            this.label1.Text = "Gray means that the team is not part of the competition (doubleclick on item)";
+            this.label1.Text = "Gray means that the team is not part of the competition (doubleclick on item).\r\nC" +
+    "lick on the header to scramble the teams.";
             // 
             // btnSavePlan
             // 
@@ -326,7 +327,7 @@
             this.lvTeams.Location = new System.Drawing.Point(7, 7);
             this.lvTeams.MultiSelect = false;
             this.lvTeams.Name = "lvTeams";
-            this.lvTeams.Size = new System.Drawing.Size(292, 484);
+            this.lvTeams.Size = new System.Drawing.Size(292, 471);
             this.lvTeams.TabIndex = 0;
             this.lvTeams.UseCompatibleStateImageBehavior = false;
             this.lvTeams.View = System.Windows.Forms.View.Details;

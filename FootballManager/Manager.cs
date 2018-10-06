@@ -124,16 +124,18 @@ namespace FootballManager
         /// Save the plan to a file with given format
         /// </summary>
         /// <param name="format"></param>
-        /// <param name="Path"></param>
+        /// <param name="path"></param>
         /// <returns>true on succes</returns>
-        public bool SavePlan(SaveFormat format, string Path)
+        public bool SavePlan(SaveFormat format, string path)
         {
             switch (format)
             {
                 case SaveFormat.File:
-                    return SavePlanToFile(Path);
+                    return SavePlanToFile(path);
                 case SaveFormat.Excel:
-                    return SavePlanToExcel(Path);
+                    return SavePlanToExcel(path);
+                case SaveFormat.ExcelTemplate:
+                    return SavePlanToExcelTemplate(path);
                 default:
                     break;
             }
@@ -144,7 +146,7 @@ namespace FootballManager
         /// 
         /// </summary>
         /// <param name="Path"></param>
-        private bool SavePlanToExcel(string Path)
+        private bool SavePlanToExcelTemplate(string Path)
         {
             bool status = true;
             Microsoft.Office.Interop.Excel.Application app = new Microsoft.Office.Interop.Excel.Application();
@@ -190,6 +192,49 @@ namespace FootballManager
                 ws.Cells[row, 3] = teams.Where(a => a.Key == s.Home).FirstOrDefault().Value;
                 ws.Cells[row, 4] = (s.HomeGoals == -1 ? "__" : s.HomeGoals.ToString()) + ":" + (s.GuestGoals == -1 ? "__" : s.GuestGoals.ToString());
                 ws.Cells[row, 5] = teams.Where(a => a.Key == s.Guest).FirstOrDefault().Value;
+                i++;
+            }
+
+            try
+            {
+                wb.SaveAs(Path, XlFileFormat.xlOpenXMLWorkbook, Type.Missing, Type.Missing, true, false, XlSaveAsAccessMode.xlNoChange, XlSaveConflictResolution.xlLocalSessionChanges, Type.Missing, Type.Missing);
+
+            }
+            catch (Exception)
+            {
+                status = false;
+            }
+            wb.Close();
+            app.Quit();
+            return status;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Path"></param>
+        private bool SavePlanToExcel(string Path)
+        {
+            bool status = true;
+            Microsoft.Office.Interop.Excel.Application app = new Microsoft.Office.Interop.Excel.Application();
+            Workbook wb = app.Workbooks.Add(XlSheetType.xlWorksheet);
+            Worksheet ws = (Worksheet)app.ActiveSheet;
+            app.Visible = false;
+            //Zellen Headers
+            ws.Cells[1, 1] = "ID";
+            ws.Cells[1, 2] = "Zeit";
+            ws.Cells[1, 3] = "Heim";
+            ws.Cells[1, 4] = "Stand";
+            ws.Cells[1, 5] = "Gast";
+
+            int i = 0;
+            foreach (var s in lGames)
+            {
+                ws.Cells[i + 2, 1] = s.Id;
+                ws.Cells[i + 2, 2] = s.Time;
+                ws.Cells[i + 2, 3] = s.Home;
+                ws.Cells[i + 2, 4] = (s.HomeGoals == -1 ? "__" : s.HomeGoals.ToString()) + ":" + (s.GuestGoals == -1 ? "__" : s.GuestGoals.ToString());
+                ws.Cells[i + 2, 5] = s.Guest;
                 i++;
             }
 

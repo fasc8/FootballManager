@@ -242,7 +242,7 @@ namespace FootballManager
                 MessageBox.Show(this, "You did not create a plan", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            using (SaveFileDialog sfd = new SaveFileDialog() { Filter = "Football manager files (*.fm)|*.fm|Open Document Spreadsheet|*.ods", ValidateNames = true })
+            using (SaveFileDialog sfd = new SaveFileDialog() { Filter = "Football manager files (*.fm)|*.fm|Open Document Spreadsheet|*.ods | .xlsx Files as template (*.xlsx)|*.xlsx", ValidateNames = true, FilterIndex = 3 })
             {
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
@@ -250,6 +250,10 @@ namespace FootballManager
                     if (sfd.FileName.Contains(".ods"))
                     {
                         sf = SaveFormat.Excel;
+                    }
+                    else if (sfd.FileName.Contains(".xlsx"))
+                    {
+                        sf = SaveFormat.ExcelTemplate;
                     }
                     bool status = Manager.SavePlan(sf, sfd.FileName);
                     if(status)
@@ -262,7 +266,7 @@ namespace FootballManager
 
         private void btnImportPlan_Click(object sender, EventArgs e)
         {
-            using (OpenFileDialog sfd = new OpenFileDialog() { Filter = "Football manager files (*.fm)|*.fm", ValidateNames = true })
+            using (OpenFileDialog sfd = new OpenFileDialog() { Filter = "Football manager files (*.fm)|*.fm", ValidateNames = true, FilterIndex = 1 })
             {
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
