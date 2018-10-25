@@ -242,7 +242,7 @@ namespace FootballManager
                 MessageBox.Show(this, "You did not create a plan", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            using (SaveFileDialog sfd = new SaveFileDialog() { Filter = "Football manager files (*.fm)|*.fm|Open Document Spreadsheet|*.ods | .xlsx Files as template (*.xlsx)|*.xlsx", ValidateNames = true, FilterIndex = 3 })
+            using (SaveFileDialog sfd = new SaveFileDialog() { Filter = "Football manager files (*.fm)|*.fm|Open Document Spreadsheet|*.ods | .xlsx Files as template (*.xlsx)|*.xlsx", ValidateNames = true, FilterIndex = 2 })
             {
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
@@ -257,7 +257,7 @@ namespace FootballManager
                     }
                     bool status = Manager.SavePlan(sf, sfd.FileName);
                     if(status)
-                        MessageBox.Show(this, "Save successfull", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(this, "Saved successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     else
                         MessageBox.Show(this, "An error ocurred during the saving process", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -467,6 +467,5 @@ namespace FootballManager
                 }
             }
         }
-
     }
 }

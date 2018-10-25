@@ -78,13 +78,13 @@ namespace FootballManager
             Worksheet ws = (Worksheet)app.ActiveSheet;
             app.Visible = false;
             //Zellen Headers
-            ws.Cells[1, 1] = "Rang";
-            ws.Cells[1, 2] = "Mannschaft";
-            ws.Cells[1, 3] = "Spiele";
-            ws.Cells[1, 4] = "Punkte";
-            ws.Cells[1, 5] = "Tore";
-            ws.Cells[1, 6] = "Gegentore";
-            ws.Cells[1, 7] = "Tordifferenz";
+            ws.Cells[1, 1] = "Rank";
+            ws.Cells[1, 2] = "Team";
+            ws.Cells[1, 3] = "Games played";
+            ws.Cells[1, 4] = "Points";
+            ws.Cells[1, 5] = "Goals";
+            ws.Cells[1, 6] = "Goals against";
+            ws.Cells[1, 7] = "Goaldifference";
 
             int i = 0;
             foreach (var s in lStats)
@@ -155,12 +155,12 @@ namespace FootballManager
             app.Visible = false;
             //Zellen Headers
             ws.Cells[1, 1] = "ID";
-            ws.Cells[1, 2] = "Zeit";
-            ws.Cells[1, 3] = "Heim";
-            ws.Cells[1, 4] = "Stand";
-            ws.Cells[1, 5] = "Gast";
+            ws.Cells[1, 2] = "Time";
+            ws.Cells[1, 3] = "Home";
+            ws.Cells[1, 4] = "Score";
+            ws.Cells[1, 5] = "Guest";
 
-            ws.Cells[1, 7] = "Mannschaften";
+            ws.Cells[1, 7] = "Teams";
             int c = 0;
             List<KeyValuePair<string, string>> teams = new List<KeyValuePair<string, string>>();
             foreach (var t in lTeams)
@@ -170,12 +170,12 @@ namespace FootballManager
                 c++;
             }
 
-            ws.Cells[1, 9] = "Einstellungen";
-            ws.Cells[2, 9] = "Startzeit:";
+            ws.Cells[1, 9] = "Settings";
+            ws.Cells[2, 9] = "Starttime:";
             ws.Cells[2, 10] = this.StartTime;
-            ws.Cells[3, 9] = "Spielzeit:";
+            ws.Cells[3, 9] = "Playtime:";
             ws.Cells[3, 10] = this.GameLength;
-            ws.Cells[4, 9] = "Wechselzeit:";
+            ws.Cells[4, 9] = "Changetime:";
             ws.Cells[4, 10] = this.GamePause;
             
             int i = 0;
@@ -222,10 +222,10 @@ namespace FootballManager
             app.Visible = false;
             //Zellen Headers
             ws.Cells[1, 1] = "ID";
-            ws.Cells[1, 2] = "Zeit";
-            ws.Cells[1, 3] = "Heim";
-            ws.Cells[1, 4] = "Stand";
-            ws.Cells[1, 5] = "Gast";
+            ws.Cells[1, 2] = "Time";
+            ws.Cells[1, 3] = "Home";
+            ws.Cells[1, 4] = "Score";
+            ws.Cells[1, 5] = "Guest";
 
             int i = 0;
             foreach (var s in lGames)
@@ -300,14 +300,6 @@ namespace FootballManager
                 List<string> teams = new List<string>();
                 List<string> settings = new List<string>();
 
-                //int teamLine = 0, settingsLine = 0;
-                //for (int i = 0; i < lines.Length; i++)
-                //{
-                //    if (lines[i] == "{Teams}")
-                //        teamLine = i;
-                //    if (lines[i] == "{Settings}")
-                //        settingsLine = i;
-                //}
                 games = lines.TakeWhile(a => a != "{Teams}").ToList();
                 teams = lines.Skip(games.Count + 1).TakeWhile(a => a != "{Settings}").ToList();
                 settings = lines.Skip(games.Count + teams.Count + 2).TakeWhile(a => a != "").ToList();
